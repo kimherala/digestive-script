@@ -2,13 +2,13 @@
 
 # Hash
 # Default hash function
-hash_function="sha256sum"
-hash_functions_allowed="(^md5sum$|^sha256sum$|^sha512sum$|^b3sum$)"
+hash_function='sha256sum'
+hash_functions_allowed='(^md5sum$|^sha256sum$|^sha512sum$|^b3sum$)'
 
 # Encoding
 # Possible values hex and base64
-encoding="hex"
-encodings_allowed="(^hex$|^base64$)"
+encoding='hex'
+encodings_allowed='(^hex$|^base64$)'
 
 ## Utils
 # cut
@@ -63,18 +63,18 @@ while getopts 'hf:e:' OPTION; do
             if [[ "$OPTARG" =~ $encodings_allowed ]]; then
                 encoding=$OPTARG
             else
-                error_handler "Invalid encoding given!"
+                error_handler 'Invalid encoding given!'
             fi
         ;;
         f)
             if [[ "$OPTARG" =~ $hash_functions_allowed ]]; then
                 hash_function=$OPTARG
             else
-                error_handler "Invalid hash function given!"
+                error_handler 'Invalid hash function given!'
             fi
         ;;
         h)
-            echo "help"
+            echo 'help'
         ;;
     esac
 done
