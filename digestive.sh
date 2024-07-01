@@ -80,7 +80,8 @@ while getopts 'hf:e:' OPTION; do
 done
 
 # Loop over files in current working directory
-for file in `find . -maxdepth 1 -type f` ; do
+IFS=$'\n'
+for file in $(find . -maxdepth 1 -type f) ; do
     case $encoding in
         "hex")
             $hash_function $file | this_cut && echo "  $file"
