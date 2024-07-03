@@ -3,12 +3,18 @@
 # Hash
 # Default hash function
 hash_function='sha256sum'
+# Ragex string
 hash_functions_allowed='(^md5sum$|^sha256sum$|^sha512sum$|^b3sum$)'
 
 # Encoding
 # Possible values hex and base64
 encoding='hex'
+# Ragex string
 encodings_allowed='(^hex$|^base64$)'
+
+# Find
+# Searches the current working directory if the value is 1
+find_max_depth=1
 
 ## Utils
 # cut
@@ -57,20 +63,29 @@ function error_handler()
 }
 
 # Loop over flags given at startup
-while getopts 'hf:e:' OPTION; do
+while getopts 'hf:e:d:' OPTION
+do
     case $OPTION in
         e)
-            if [[ "$OPTARG" =~ $encodings_allowed ]]; then
+            if [[ "$OPTARG" =~ $encodings_allowed ]]
+            then
                 encoding=$OPTARG
             else
                 error_handler 'Invalid encoding given!'
             fi
         ;;
         f)
-            if [[ "$OPTARG" =~ $hash_functions_allowed ]]; then
+            if [[ "$OPTARG" =~ $hash_functions_allowed ]]
+            then
                 hash_function=$OPTARG
             else
                 error_handler 'Invalid hash function given!'
+            fi
+        ;;
+        d)
+            if [[ "$OPTARG" -gt 1 ]]
+            then
+                find_max_depth=$OPTARG
             fi
         ;;
         h)
@@ -81,7 +96,8 @@ done
 
 # Loop over files in current working directory
 IFS=$'\n'
-for file in $(find . -maxdepth 1 -type f) ; do
+for file in $(find . -maxdepth $find_max_depth -type f)
+do
     case $encoding in
         "hex")
             $hash_function $file | this_cut && echo "  $file"
