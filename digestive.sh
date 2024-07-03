@@ -2,19 +2,19 @@
 
 # Hash
 # Default hash function
-hash_function='sha256sum'
+HASH_FUNCTION='sha256sum'
 # Ragex string
-hash_functions_allowed='(^md5sum$|^sha256sum$|^sha512sum$|^b3sum$)'
+HASH_FUNCTIONS_ALLOWED='(^md5sum$|^sha256sum$|^sha512sum$|^b3sum$)'
 
 # Encoding
-# Possible values hex and base64
-encoding='hex'
+# Possible values hex, base64 and octal
+ENCODING='hex'
 # Ragex string
-encodings_allowed='(^hex$|^base64$)'
+ENCODINGS_ALLOWED='(^hex$|^base64$|^octal$)'
 
 # Find
 # Searches the current working directory if the value is 1
-find_max_depth=1
+FIND_MAX_DEPTH=1
 
 ## Utils
 # cut
@@ -54,6 +54,17 @@ function this_base64() {
     base64 -w 0
 }
 
+# od
+#
+# flag -t o1
+# Format specification, -t o1 selects octal bytes formating
+# 
+# flag -An
+# Output format for file offsets, -An == none
+function this_od() {
+    od -t o1 -An
+}
+
 function error_handler()
 {
     local error_text=$1
@@ -67,17 +78,17 @@ while getopts 'hf:e:d:' OPTION
 do
     case $OPTION in
         e)
-            if [[ "$OPTARG" =~ $encodings_allowed ]]
+            if [[ "$OPTARG" =~ $ENCODINGS_ALLOWED ]]
             then
-                encoding=$OPTARG
+                ENCODING=$OPTARG
             else
                 error_handler 'Invalid encoding given!'
             fi
         ;;
         f)
-            if [[ "$OPTARG" =~ $hash_functions_allowed ]]
+            if [[ "$OPTARG" =~ $HASH_FUNCTIONS_ALLOWED ]]
             then
-                hash_function=$OPTARG
+                HASH_FUNCTION=$OPTARG
             else
                 error_handler 'Invalid hash function given!'
             fi
@@ -85,7 +96,7 @@ do
         d)
             if [[ "$OPTARG" -gt 1 ]]
             then
-                find_max_depth=$OPTARG
+                FIND_MAX_DEPTH=$OPTARG
             fi
         ;;
         h)
@@ -96,14 +107,17 @@ done
 
 # Loop over files in current working directory
 IFS=$'\n'
-for file in $(find . -maxdepth $find_max_depth -type f)
+for file in $(find . -maxdepth $FIND_MAX_DEPTH -type f)
 do
-    case $encoding in
+    case "$ENCODING" in
         "hex")
-            $hash_function $file | this_cut && echo "  $file"
+            $HASH_FUNCTION $file | this_cut && echo "  $file"
         ;;
         "base64")
-            $hash_function $file | this_cut | this_xxd | this_base64 && echo "  $file"
+            $HASH_FUNCTION $file | this_cut | this_xxd | this_base64 && echo "  $file"
+        ;;
+        "octal")
+            $HASH_FUNCTION $file | this_cut | this_xxd | this_od && echo "  $file"
         ;;
     esac
 done
