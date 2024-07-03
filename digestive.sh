@@ -65,8 +65,16 @@ function this_od() {
     od -t o1 -An
 }
 
-function error_handler()
-{
+# sed
+# flag -z
+# Seperate lines by NUL character
+# 
+# This is used for removing the trailing new line from od
+function this_sed() {
+    sed -z '$ s/\n$//'
+}
+
+function error_handler() {
     local error_text=$1
     
     echo "$error_text"
@@ -117,7 +125,7 @@ do
             $HASH_FUNCTION $file | this_cut | this_xxd | this_base64 && echo "  $file"
         ;;
         "octal")
-            $HASH_FUNCTION $file | this_cut | this_xxd | this_od && echo "  $file"
+            $HASH_FUNCTION $file | this_cut | this_xxd | this_od | this_sed  && echo "  $file"
         ;;
     esac
 done
